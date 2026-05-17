@@ -100,13 +100,6 @@ func getProvider(name string) (providers.Provider, error) {
 	}
 }
 
-	default:
-		fmt.Printf("Unknown command: %s\n", command)
-		printUsage()
-		os.Exit(1)
-	}
-}
-
 func printUsage() {
 	fmt.Println("Usage: webhookforge <command> [options]")
 	fmt.Println("\nCommands:")
