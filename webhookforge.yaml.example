@@ -1,0 +1,5 @@
+providers:
+  stripe:
+    secret: whsec_xxx
+    target: http://localhost:3000/webhooks/stripe
+    listen_port: 9000
