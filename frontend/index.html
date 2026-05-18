@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WebhookReforge</title>
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --accent:    #f78166;
+      --accent2:   #79c0ff;
+      --success:   #56d364;
+      --warning:   #e3b341;
+      --text:      #c9d1d9;
+      --muted:     #6e7681;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-ui:   'Inter', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    header .logo {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    header .logo span { color: var(--accent2); }
+    header .tagline {
+      color: var(--muted);
+      font-size: 11px;
+    }
+    header .status-dot {
+      margin-left: auto;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+    header .status-dot.active { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    header .status-label { font-size: 11px; color: var(--muted); }
+
+    /* ── Layout ── */
+    .workspace {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Left Panel ── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .section {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* ── Form Controls ── */
+    .field { margin-bottom: 8px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 5px 8px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--accent2);
+    }
+    .field select option { background: var(--surface); }
+
+    /* ── Mode Tabs ── */
+    .mode-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .mode-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+    }
+
+    /* ── Payload Editor ── */
+    .payload-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 14px;
+      overflow: hidden;
+    }
+    .payload-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .payload-header .section-label { margin-bottom: 0; }
+    .btn-tiny {
+      font-size: 10px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-tiny:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    #payload-editor {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.6;
+      padding: 10px;
+      resize: none;
+      outline: none;
+      overflow-y: auto;
+      transition: border-color 0.15s;
+    }
+    #payload-editor:focus { border-color: var(--accent2); }
+    #payload-editor.error { border-color: var(--accent); }
+
+    /* ── Fire Button ── */
+    .fire-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 9px;
+      background: var(--accent);
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .fire-btn:hover { opacity: 0.88; }
+    .fire-btn:active { transform: scale(0.98); }
+    .fire-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Right Panel — Event Log ── */
+    .panel-right {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .log-header .section-label { margin-bottom: 0; }
+    #clear-log {
+      font-size: 10px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    #clear-log:hover { border-color: var(--accent); color: var(--accent); }
+
+    #event-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #event-log::-webkit-scrollbar { width: 4px; }
+    #event-log::-webkit-scrollbar-track { background: transparent; }
+    #event-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .log-empty {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 40px;
+      font-family: var(--font-mono);
+    }
+
+    .log-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--muted);
+      animation: slideIn 0.15s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .log-entry.success { border-left-color: var(--success); }
+    .log-entry.error   { border-left-color: var(--accent); }
+    .log-entry.info    { border-left-color: var(--accent2); }
+
+    .log-entry-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .log-badge {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: var(--bg);
+    }
+    .log-entry.success .log-badge { color: var(--success); }
+    .log-entry.error   .log-badge { color: var(--accent); }
+    .log-entry.info    .log-badge { color: var(--accent2); }
+
+    .log-time {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+    .log-provider {
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: auto;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .log-message {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* ── Proxy mode panel ── */
+    #proxy-panel { display: none; }
+    #proxy-panel.visible { display: block; }
+    #replay-panel { display: block; }
+    #replay-panel.hidden { display: none; }
+
+    .proxy-status {
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+    .proxy-status.running { color: var(--success); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Webhook<span>Reforge</span></div>
+  <div class="tagline">Local webhook re-signing · Stripe · Paddle · Shopify</div>
+  <div class="status-dot" id="status-dot"></div>
+  <div class="status-label" id="status-label">idle</div>
+</header>
+
+<div class="workspace">
+
+  <!-- LEFT: Config + Payload -->
+  <div class="panel-left">
+
+    <div class="section">
+      <div class="section-label">Config</div>
+      <div class="field">
+        <label>Provider</label>
+        <select id="provider">
+          <option value="stripe">Stripe</option>
+          <option value="paddle">Paddle</option>
+          <option value="shopify">Shopify</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Signing Secret</label>
+        <input type="password" id="secret" placeholder="whsec_..." spellcheck="false"/>
+      </div>
+      <div class="field">
+        <label>Target URL</label>
+        <input type="text" id="target" value="http://localhost:3000/webhooks" spellcheck="false"/>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Mode</div>
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-replay" onclick="setMode('replay')">⚡ Replay</button>
+        <button class="mode-tab" id="tab-proxy" onclick="setMode('proxy')">🔀 Proxy</button>
+      </div>
+
+      <!-- Replay mode -->
+      <div id="replay-panel">
+        <!-- payload editor is below, nothing extra here -->
+      </div>
+
+      <!-- Proxy mode -->
+      <div id="proxy-panel">
+        <div class="field">
+          <label>Listen Port</label>
+          <input type="number" id="proxy-port" value="9000" min="1024" max="65535"/>
+        </div>
+        <button class="fire-btn" id="proxy-btn" onclick="toggleProxy()">Start Proxy</button>
+        <div class="proxy-status" id="proxy-status"></div>
+      </div>
+    </div>
+
+    <!-- Payload Editor (replay mode) -->
+    <div class="payload-section" id="payload-section">
+      <div class="payload-header">
+        <div class="section-label">Payload</div>
+        <button class="btn-tiny" onclick="formatPayload()">Format</button>
+      </div>
+      <textarea id="payload-editor" spellcheck="false" placeholder='{"type":"payment_intent.succeeded","id":"evt_test_123"}'></textarea>
+      <button class="fire-btn" id="fire-btn" onclick="fireReplay()">⚡ Re-sign & Fire</button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Event Log -->
+  <div class="panel-right">
+    <div class="log-header">
+      <div class="section-label">Event Log</div>
+      <button id="clear-log" onclick="clearLog()">Clear</button>
+    </div>
+    <div id="event-log">
+      <div class="log-empty" id="log-empty">No events yet. Fire a webhook to get started.</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="src/main.js"></script>
+</body>
+</html>

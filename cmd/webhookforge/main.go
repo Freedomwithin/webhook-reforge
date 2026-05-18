@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Freedomwithin/webhookforge/internal/providers"
-	"github.com/Freedomwithin/webhookforge/internal/proxy"
-	"github.com/Freedomwithin/webhookforge/internal/replay"
+	"github.com/Freedomwithin/webhook-reforge/internal/providers"
+	"github.com/Freedomwithin/webhook-reforge/internal/proxy"
+	"github.com/Freedomwithin/webhook-reforge/internal/replay"
 )
 
 func main() {
@@ -75,10 +75,13 @@ func main() {
 			Secret:   *secret,
 			Provider: provider,
 		}
-		if err := r.Run(); err != nil {
+		result, err := r.Run()
+		if err != nil {
 			fmt.Printf("Replay error: %v\n", err)
 			os.Exit(1)
 		}
+		fmt.Printf("✅ Replayed %s to %s\n", *file, *target)
+		fmt.Printf("Response: %d %s\n", result.StatusCode, result.Body)
 
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
@@ -101,7 +104,7 @@ func getProvider(name string) (providers.Provider, error) {
 }
 
 func printUsage() {
-	fmt.Println("Usage: webhookforge <command> [options]")
+	fmt.Println("Usage: webhook-reforge <command> [options]")
 	fmt.Println("\nCommands:")
 	fmt.Println("  proxy   - Start a re-signing proxy server")
 	fmt.Println("  replay  - Re-sign and fire a saved JSON payload")

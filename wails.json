@@ -1,0 +1,16 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "webhook-reforge",
+  "outputfilename": "webhook-reforge",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "VirtualMachine",
+    "email": "166790647+Freedomwithin@users.noreply.github.com"
+  },
+  "tags": [
+    "webkit2_41"
+  ]
+}

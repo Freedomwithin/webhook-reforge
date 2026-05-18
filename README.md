@@ -1,29 +1,19 @@
-# WebhookForge
+# README
 
-A developer utility to re-sign and replay webhooks locally. Bypasses stale timestamp and signature validation issues during development.
+## About
 
-## Phase 1 — MVP (Stripe Only)
+This is the official Wails Vanilla template.
 
-### Features
-- **Proxy Mode**: Acts as a middleware that re-signs incoming Stripe webhooks with a fresh timestamp and forwards them to your local application.
-- **Replay Mode**: Takes a saved JSON payload, signs it with a current timestamp, and fires it at your target URL.
+You can configure the project by editing `wails.json`. More information about the project settings can be found
+here: https://wails.io/docs/reference/project-config
 
-### Installation
-```bash
-go build -o webhookforge ./cmd/webhookforge
-```
+## Live Development
 
-### Usage
+To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
+server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
+and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
+to this in your browser, and you can call your Go code from devtools.
 
-#### Proxy Mode
-```bash
-./webhookforge proxy --port 9000 --target http://localhost:3000/webhooks --secret whsec_your_secret
-```
+## Building
 
-#### Replay Mode
-```bash
-./webhookforge replay --file payment_intent.json --target http://localhost:3000/webhooks --secret whsec_your_secret
-```
-
-## License
-MIT
+To build a redistributable, production mode package, use `wails build`.

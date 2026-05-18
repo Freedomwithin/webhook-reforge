@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/Freedomwithin/webhookforge/internal/providers"
+	"github.com/Freedomwithin/webhook-reforge/internal/providers"
 )
 
 type ProxyServer struct {
