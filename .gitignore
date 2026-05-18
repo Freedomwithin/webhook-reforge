@@ -1,3 +1,5 @@
 build/bin
 node_modules
 frontend/dist
+docs/MARKETING_DRAFTS.md
+docs/PROFIT_PROJECTION.md
