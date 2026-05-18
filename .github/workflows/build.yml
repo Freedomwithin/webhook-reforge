@@ -15,7 +15,7 @@ jobs:
           - os: windows-latest
             output: webhook-reforge-windows-amd64.exe
           - os: macos-latest
-            output: webhook-reforge-macos-amd64
+            output: webhook-reforge-macos-amd64.zip
 
     runs-on: ${{ matrix.os }}
 
@@ -39,7 +39,15 @@ jobs:
         shell: bash
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            wails build -o ${{ matrix.output }} -tags webkit2_41
+            wails build -o webhook-reforge-linux-amd64 -tags webkit2_41
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            wails build -o webhook-reforge
+            cd build/bin
+            zip -r ../../webhook-reforge-macos-amd64.zip webhook-reforge.app
+            cd ../..
+            # Move zip to build/bin so upload path is consistent
+            mkdir -p build/bin
+            mv webhook-reforge-macos-amd64.zip build/bin/
           else
             wails build -o ${{ matrix.output }}
           fi
