@@ -2,7 +2,7 @@
 
 A high-fidelity developer utility to re-sign and replay webhooks locally. Bypasses stale timestamp and signature validation issues during development.
 
-![WebhookReforge UI Placeholder](https://raw.githubusercontent.com/Freedomwithin/webhook-reforge/main/build/appicon.png)
+![WebhookReforge UI](https://raw.githubusercontent.com/Freedomwithin/webhook-reforge/main/docs/screenshot.png)
 
 ## Provider Support
 
