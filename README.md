@@ -4,6 +4,14 @@ A high-fidelity developer utility to re-sign and replay webhooks locally. Bypass
 
 ![WebhookReforge UI Placeholder](https://raw.githubusercontent.com/Freedomwithin/webhook-reforge/main/build/appicon.png)
 
+## Provider Support
+
+| Provider | Scheme | Tolerance |
+|----------|--------|-----------|
+| Stripe | `t=....,v1=....` HMAC-SHA256 hex | 5 minutes |
+| Paddle | `ts=...;h1=....` HMAC-SHA256 hex | ~5 seconds |
+| Shopify | `X-Shopify-Hmac-SHA256` HMAC-SHA256 base64 | No timestamp |
+
 ## Why WebhookReforge?
 
 Many webhook providers (Stripe, Paddle, Shopify) use HMAC signatures to ensure payload integrity. These signatures often include a Unix timestamp to prevent replay attacks.
